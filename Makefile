@@ -63,7 +63,8 @@ update: # Update authservice to latest commit
 	@git submodule update --remote --merge
 
 check: # Make sure we follow the rules
-	@$(MAKE) gen format lint
+	@rm -fr generated
+	@$(MAKE) gen format lint license
 	@if [ ! -z "`git status -s`" ]; then \
 		echo "The following differences will fail CI until committed:"; \
 		git diff --exit-code; \
