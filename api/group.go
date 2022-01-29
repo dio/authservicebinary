@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/dio/authservicebinary/generated/config"
-	"github.com/dio/authservicebinary/internal/download"
+	"github.com/dio/authservicebinary/internal/downloader"
 	"github.com/dio/authservicebinary/internal/runner"
 )
 
@@ -131,7 +131,7 @@ func (s *Service) Validate() error {
 func (s *Service) PreRun() (err error) {
 	if s.cfg.Dir == "" {
 		// To make sure we have a work directory.
-		dir, err := ioutil.TempDir("", download.DefautBinaryName)
+		dir, err := ioutil.TempDir("", downloader.DefautBinaryName)
 		if err != nil {
 			return nil
 		}
@@ -142,7 +142,7 @@ func (s *Service) PreRun() (err error) {
 	defer cancel()
 
 	// Check and download the versioned binary.
-	s.binaryPath, err = download.VersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, download.DefautBinaryName)
+	s.binaryPath, err = downloader.DownloadVersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, downloader.DefautBinaryName)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (s *Service) PreRun() (err error) {
 		return err
 	}
 
-	tmp, err := ioutil.TempFile(s.cfg.Dir, download.DefautBinaryName)
+	tmp, err := ioutil.TempFile(s.cfg.Dir, downloader.DefautBinaryName)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func (s *Service) PreRun() (err error) {
 func (s *Service) Serve() error {
 	// Run the downloaded auth_server with the generated config in s.configPath.
 	if exitCode, err := runner.Run(s.cmd); err != nil {
-		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", download.DefautBinaryName, exitCode), err)
+		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", downloader.DefautBinaryName, exitCode), err)
 		return err
 	}
 	return nil
