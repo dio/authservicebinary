@@ -22,13 +22,13 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dio/authservicebinary/internal/download"
+	"github.com/dio/authservicebinary/internal/downloader"
 )
 
 func Run(cmd *exec.Cmd) (int, error) {
 	err := cmd.Start()
 	if err != nil {
-		return 1, fmt.Errorf("failed to start %s: %w", download.DefautBinaryName, err)
+		return 1, fmt.Errorf("failed to start %s: %w", downloader.DefautBinaryName, err)
 	}
 
 	// Buffered, since caught by sigchanyzer: misuse of unbuffered os.Signal channel as argument to
@@ -47,7 +47,7 @@ func Run(cmd *exec.Cmd) (int, error) {
 			waitStatus, _ := exitError.Sys().(syscall.WaitStatus)
 			return waitStatus.ExitStatus(), nil
 		}
-		return 1, fmt.Errorf("failed to launch %s: %v", download.DefautArchivedBinaryName, err)
+		return 1, fmt.Errorf("failed to launch %s: %v", downloader.DefautArchivedBinaryName, err)
 	}
 	return 0, nil
 }

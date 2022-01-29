@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package download
+package downloader
 
 import (
 	"bytes"
@@ -33,8 +33,8 @@ const (
 	archiveURLPattern = "https://github.com/dio/authservice/releases/download/v%s/auth_server_%s_%s_amd64.tar.gz"
 )
 
-// VersionedBinary returns the downloaded binary file path.
-func VersionedBinary(ctx context.Context, version, destDir, destFile string) (string, error) {
+// DownloadVersionedBinary returns the downloaded binary file path.
+func DownloadVersionedBinary(ctx context.Context, version, destDir, destFile string) (string, error) {
 	err := os.MkdirAll(destDir, 0o750)
 	if err != nil {
 		return "", fmt.Errorf("could not create directory %s: %v", destDir, err)

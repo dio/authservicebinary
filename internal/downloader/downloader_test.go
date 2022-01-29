@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package download_test
+package downloader_test
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	"github.com/bazelbuild/bazelisk/httputil"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dio/authservicebinary/internal/download"
+	"github.com/dio/authservicebinary/internal/downloader"
 )
 
 var (
@@ -68,8 +68,8 @@ func TestDownloadVersionedBinarySuccessOnFirstTry(t *testing.T) {
 	transport, _ := setUp()
 	data, err := os.ReadFile(filepath.Join("testdata", "archive.tar.gz"))
 	require.NoError(t, err)
-	transport.AddResponse(download.GetArchiveURL("0.6.0-rc0"), 200, string(data), nil)
-	downloaded, err := download.VersionedBinary(context.Background(), "0.6.0-rc0", t.TempDir(), "auth_server")
+	transport.AddResponse(downloader.GetArchiveURL("0.6.0-rc0"), 200, string(data), nil)
+	downloaded, err := downloader.DownloadVersionedBinary(context.Background(), "0.6.0-rc0", t.TempDir(), "auth_server")
 	require.NoError(t, err)
 	require.FileExists(t, downloaded)
 }
