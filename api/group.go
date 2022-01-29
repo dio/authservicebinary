@@ -131,7 +131,7 @@ func (s *Service) Validate() error {
 func (s *Service) PreRun() (err error) {
 	if s.cfg.Dir == "" {
 		// To make sure we have a work directory.
-		dir, err := ioutil.TempDir("", downloader.DefautBinaryName)
+		dir, err := ioutil.TempDir("", downloader.DefaultBinaryName)
 		if err != nil {
 			return nil
 		}
@@ -142,7 +142,7 @@ func (s *Service) PreRun() (err error) {
 	defer cancel()
 
 	// Check and download the versioned binary.
-	s.binaryPath, err = downloader.DownloadVersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, downloader.DefautBinaryName)
+	s.binaryPath, err = downloader.DownloadVersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, downloader.DefaultBinaryName)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (s *Service) PreRun() (err error) {
 		return err
 	}
 
-	tmp, err := ioutil.TempFile(s.cfg.Dir, downloader.DefautBinaryName)
+	tmp, err := ioutil.TempFile(s.cfg.Dir, downloader.DefaultBinaryName)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func (s *Service) PreRun() (err error) {
 func (s *Service) Serve() error {
 	// Run the downloaded auth_server with the generated config in s.configPath.
 	if exitCode, err := runner.Run(s.cmd); err != nil {
-		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", downloader.DefautBinaryName, exitCode), err)
+		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", downloader.DefaultBinaryName, exitCode), err)
 		return err
 	}
 	return nil
