@@ -47,6 +47,8 @@ jobs:
           access_token: ${{ github.token }}
       - name: "Checkout"
         uses: actions/checkout@v2
+        with:
+          submodules: true # Checks out submodules.
       - name: "Setup Go"
         uses: actions/setup-go@v2
         with:

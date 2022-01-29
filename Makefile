@@ -115,6 +115,9 @@ $(BUF_V1_MODULE_DATA): $(authservice_dir)/buf.yaml $(authservice_dir)/buf.lock $
 	@$(buf) lint
 	@$(buf) build
 
+$(authservice_dir)/buf.yaml:
+	@git submodule update --init
+
 # Catch all rules for Go-based tools.
 $(go_tools_dir)/%:
 	@GOBIN=$(go_tools_dir) go install $($(notdir $@)@v)
