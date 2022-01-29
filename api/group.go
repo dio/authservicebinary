@@ -17,12 +17,14 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"time"
 
 	"github.com/tetratelabs/run"
+	"github.com/tetratelabs/telemetry"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/dio/authservicebinary/generated/config"
@@ -30,15 +32,23 @@ import (
 	"github.com/dio/authservicebinary/internal/runner"
 )
 
-const (
-	defaultBinaryVersion = "0.6.0-rc0"
-	binaryHomeEnvKey     = "EXT_AUTH_SERVICE_HOME"
+var (
+	// Default binary version.
+	DefaultBinaryVersion = "0.6.0-rc0"
+	// Default download timeout.
+	DefaultDownloadTimeout = 30 * time.Second
 )
 
+const (
+	binaryHomeEnvKey = "EXT_AUTH_SERVICE_HOME"
+)
+
+// Config holds the configuration object for running auth_server.
 type Config struct {
 	Version string
 	// Location where the binary will be downloaded.
 	Dir          string
+	Logger       telemetry.Logger
 	FilterConfig *config.Config
 }
 
@@ -53,6 +63,7 @@ func New(cfg *Config) *Service {
 	}
 }
 
+// Service is a run.Service implementation that runs auth_server.
 type Service struct {
 	cfg           *Config
 	cmd           *exec.Cmd
@@ -63,33 +74,40 @@ type Service struct {
 
 var _ run.Config = (*Service)(nil)
 
+// Name returns the service name.
 func (s *Service) Name() string {
-	return "authservice"
+	return "external-auth-service"
 }
 
+// FlagSet provides command line flags for external auth-service.
 func (s *Service) FlagSet() *run.FlagSet {
 	flags := run.NewFlagSet("External AuthN/AuthZ Service options")
 	flags.StringVar(
 		&s.filterCfgFile,
-		"external-auth-service-config",
+		s.flagName("config"),
 		s.filterCfgFile,
 		"Path to the filter config file")
 
 	flags.StringVar(
 		&s.cfg.Version,
-		"external-auth-service-version",
-		defaultBinaryVersion,
+		s.flagName("version"),
+		DefaultBinaryVersion,
 		"External auth server version")
 
 	flags.StringVar(
 		&s.cfg.Dir,
-		"external-auth-service-directory",
+		s.flagName("directory"),
 		os.Getenv(binaryHomeEnvKey),
 		"External auth server version")
 
 	return flags
 }
 
+func (s *Service) flagName(name string) string {
+	return s.Name() + "-" + name
+}
+
+// Validate validates the given configuration.
 func (s *Service) Validate() error {
 	if s.filterCfgFile != "" {
 		b, err := os.ReadFile(s.filterCfgFile)
@@ -109,8 +127,10 @@ func (s *Service) Validate() error {
 	return s.cfg.FilterConfig.ValidateAll()
 }
 
+// PreRun prepares the biany to run.
 func (s *Service) PreRun() (err error) {
 	if s.cfg.Dir == "" {
+		// To make sure we have a work directory.
 		dir, err := ioutil.TempDir("", download.DefautBinaryName)
 		if err != nil {
 			return nil
@@ -118,10 +138,10 @@ func (s *Service) PreRun() (err error) {
 		s.cfg.Dir = dir
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), DefaultDownloadTimeout)
 	defer cancel()
 
-	// Check and download the binary.
+	// Check and download the versioned binary.
 	s.binaryPath, err = download.VersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, download.DefautBinaryName)
 	if err != nil {
 		return err
@@ -133,7 +153,7 @@ func (s *Service) PreRun() (err error) {
 		return err
 	}
 
-	tmp, err := ioutil.TempFile("", download.DefautBinaryName)
+	tmp, err := ioutil.TempFile(s.cfg.Dir, download.DefautBinaryName)
 	if err != nil {
 		return err
 	}
@@ -147,12 +167,17 @@ func (s *Service) PreRun() (err error) {
 	return nil
 }
 
+// Serve runs the binary.
 func (s *Service) Serve() error {
 	// Run the downloaded auth_server with the generated config in s.configPath.
-	_, err := runner.Run(s.cmd)
-	return err
+	if exitCode, err := runner.Run(s.cmd); err != nil {
+		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", download.DefautBinaryName, exitCode), err)
+		return err
+	}
+	return nil
 }
 
+// GracefulStop stops the underlying process by sending interrupt.
 func (s *Service) GracefulStop() {
 	if s.cmd != nil {
 		s.cmd.Process.Signal(os.Interrupt)

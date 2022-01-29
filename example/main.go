@@ -27,8 +27,9 @@ import (
 
 func main() {
 	var (
-		g             = &run.Group{Name: "example", Logger: telemetry.NoopLogger()}
-		server        = api.New(nil)
+		logger        = telemetry.NoopLogger()
+		g             = &run.Group{Name: "example", Logger: logger}
+		server        = api.New(&api.Config{Logger: logger})
 		signalHandler = new(runsignal.Handler)
 	)
 	g.Register(server, signalHandler)
