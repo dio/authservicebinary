@@ -65,11 +65,11 @@ func New(cfg *Config) *Service {
 
 // Service is a run.Service implementation that runs auth_server.
 type Service struct {
-	cfg           *Config
-	cmd           *exec.Cmd
-	binaryPath    string
-	configPath    string
-	filterCfgFile string
+	cfg              *Config
+	cmd              *exec.Cmd
+	binaryPath       string
+	configPath       string
+	filterConfigFile string
 }
 
 var _ run.Config = (*Service)(nil)
@@ -83,9 +83,9 @@ func (s *Service) Name() string {
 func (s *Service) FlagSet() *run.FlagSet {
 	flags := run.NewFlagSet("External AuthN/AuthZ Service options")
 	flags.StringVar(
-		&s.filterCfgFile,
+		&s.filterConfigFile,
 		s.flagName("config"),
-		s.filterCfgFile,
+		s.filterConfigFile,
 		"Path to the filter config file")
 
 	flags.StringVar(
@@ -109,8 +109,8 @@ func (s *Service) flagName(name string) string {
 
 // Validate validates the given configuration.
 func (s *Service) Validate() error {
-	if s.filterCfgFile != "" {
-		b, err := os.ReadFile(s.filterCfgFile)
+	if s.filterConfigFile != "" {
+		b, err := os.ReadFile(s.filterConfigFile)
 		if err != nil {
 			return err
 		}
@@ -153,7 +153,10 @@ func (s *Service) PreRun() (err error) {
 		return err
 	}
 
-	tmp, err := ioutil.TempFile(s.cfg.Dir, downloader.DefaultBinaryName)
+	tmp, err := os.CreateTemp(s.cfg.Dir, "*.json")
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
