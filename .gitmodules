@@ -1,0 +1,3 @@
+[submodule "authservice"]
+	path = authservice
+	url = https://github.com/dio/authservice.git

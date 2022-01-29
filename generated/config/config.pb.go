@@ -107,14 +107,14 @@ type isMatch_Criteria interface {
 }
 
 type Match_Prefix struct {
-	// The expected prefix. If the actual value of the header starts with this prefix,
-	// then it will be considered a match.
+	// The expected prefix. If the actual value of the header starts with this
+	// prefix, then it will be considered a match.
 	Prefix string `protobuf:"bytes,2,opt,name=prefix,proto3,oneof"`
 }
 
 type Match_Equality struct {
-	// The expected value. If the actual value of the header exactly equals this value,
-	// then it will be considered a match.
+	// The expected value. If the actual value of the header exactly equals this
+	// value, then it will be considered a match.
 	Equality string `protobuf:"bytes,3,opt,name=equality,proto3,oneof"`
 }
 
@@ -226,7 +226,8 @@ func (*Filter_OidcOverride) isFilter_Type() {}
 
 func (*Filter_Mock) isFilter_Type() {}
 
-// A chain of one or more filters that will sequentially process an HTTP request.
+// A chain of one or more filters that will sequentially process an HTTP
+// request.
 type FilterChain struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -235,18 +236,18 @@ type FilterChain struct {
 	// A user-defined identifier for the processing chain used in log messages.
 	// Required.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// A rule to determine whether an HTTP request should be processed by the filter chain.
-	// If not defined, the filter chain will match every request.
+	// A rule to determine whether an HTTP request should be processed by the
+	// filter chain. If not defined, the filter chain will match every request.
 	// Optional.
 	Match *Match `protobuf:"bytes,2,opt,name=match,proto3" json:"match,omitempty"`
-	// The configuration of one of more filters in the filter chain. When the filter chain
-	// matches an incoming request, then this list of filters will be applied to the request
-	// in the order that they are declared.
-	// All filters are evaluated until one of them returns a non-OK response.
-	// If all filters return OK, the envoy proxy is notified that the request may continue.
-	// The first filter that returns a non-OK response causes the request to be rejected with
-	// the filter's returned status and any remaining filters are skipped.
-	// At least one `Filter` is required in this array.
+	// The configuration of one of more filters in the filter chain. When the
+	// filter chain matches an incoming request, then this list of filters will be
+	// applied to the request in the order that they are declared. All filters are
+	// evaluated until one of them returns a non-OK response. If all filters
+	// return OK, the envoy proxy is notified that the request may continue. The
+	// first filter that returns a non-OK response causes the request to be
+	// rejected with the filter's returned status and any remaining filters are
+	// skipped. At least one `Filter` is required in this array.
 	Filters []*Filter `protobuf:"bytes,3,rep,name=filters,proto3" json:"filters,omitempty"`
 }
 
@@ -304,51 +305,52 @@ func (x *FilterChain) GetFilters() []*Filter {
 }
 
 // The top-level configuration object.
-// For a simple example, see the [sample JSON in the bookinfo configmap template](https://github.com/istio-ecosystem/authservice/blob/master/bookinfo-example/config/authservice-configmap-template-for-authn-and-authz.yaml).
+// For a simple example, see the [sample JSON in the bookinfo configmap
+// template](https://github.com/istio-ecosystem/authservice/blob/master/bookinfo-example/config/authservice-configmap-template-for-authn-and-authz.yaml).
 type Config struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// Each incoming http request is matched against the list of filters in the chain, in order,
-	// until a matching filter is found. The first matching filter is then applied to the request.
-	// After the first match is made, other filters in the chain are ignored.
-	// Order of chain declaration is therefore important.
-	// At least one `FilterChain` is required in this array.
+	// Each incoming http request is matched against the list of filters in the
+	// chain, in order, until a matching filter is found. The first matching
+	// filter is then applied to the request. After the first match is made, other
+	// filters in the chain are ignored. Order of chain declaration is therefore
+	// important. At least one `FilterChain` is required in this array.
 	Chains []*FilterChain `protobuf:"bytes,1,rep,name=chains,proto3" json:"chains,omitempty"`
-	// The IP address for the Authservice to listen for incoming requests to process.
-	// Required.
+	// The IP address for the Authservice to listen for incoming requests to
+	// process. Required.
 	ListenAddress string `protobuf:"bytes,2,opt,name=listen_address,json=listenAddress,proto3" json:"listen_address,omitempty"`
-	// The TCP port for the Authservice to listen for incoming requests to process.
-	// Required.
+	// The TCP port for the Authservice to listen for incoming requests to
+	// process. Required.
 	ListenPort int32 `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
 	// The verbosity of logs generated by the Authservice.
 	// Must be one of `trace`, `debug`, `info', 'error' or 'critical'.
 	// Required.
 	LogLevel string `protobuf:"bytes,4,opt,name=log_level,json=logLevel,proto3" json:"log_level,omitempty"`
 	// The number of threads in the thread pool to use for processing.
-	// The main thread will be used for accepting connections, before sending them to the thread-pool
-	// for processing. The total number of running threads, including the main thread, will be N+1.
-	// Required.
+	// The main thread will be used for accepting connections, before sending them
+	// to the thread-pool for processing. The total number of running threads,
+	// including the main thread, will be N+1. Required.
 	Threads uint32 `protobuf:"varint,5,opt,name=threads,proto3" json:"threads,omitempty"`
-	// List of trigger rules to decide if the Authservice should be used to authenticate the
-	// request. The Authservice authentication happens if any one of the rules matched.
-	// If the list is not empty and none of the rules matched, the request will be allowed
-	// to proceed without Authservice authentication.
-	// The format and semantics of `trigger_rules` are the same as the `triggerRules` setting
-	// on the Istio Authentication Policy
-	// (see https://istio.io/docs/reference/config/security/istio.authentication.v1alpha1).
-	// CAUTION: Be sure that your configured `OIDCConfig.callback` and `OIDCConfig.logout` paths
-	// each satisfies at least one of the trigger rules, or else the Authservice will not be able to
-	// intercept requests made to those paths to perform the appropriate login/logout behavior.
-	// Optional. Leave this empty to always trigger authentication for all paths.
+	// List of trigger rules to decide if the Authservice should be used to
+	// authenticate the request. The Authservice authentication happens if any one
+	// of the rules matched. If the list is not empty and none of the rules
+	// matched, the request will be allowed to proceed without Authservice
+	// authentication. The format and semantics of `trigger_rules` are the same as
+	// the `triggerRules` setting on the Istio Authentication Policy (see
+	// https://istio.io/docs/reference/config/security/istio.authentication.v1alpha1).
+	// CAUTION: Be sure that your configured `OIDCConfig.callback` and
+	// `OIDCConfig.logout` paths each satisfies at least one of the trigger rules,
+	// or else the Authservice will not be able to intercept requests made to
+	// those paths to perform the appropriate login/logout behavior. Optional.
+	// Leave this empty to always trigger authentication for all paths.
 	TriggerRules []*TriggerRule `protobuf:"bytes,9,rep,name=trigger_rules,json=triggerRules,proto3" json:"trigger_rules,omitempty"`
-	// Global configuration of OIDC. This value will be applied to all filter definition
-	// when it defined as `oidc_override`.
-	// Optional.
+	// Global configuration of OIDC. This value will be applied to all filter
+	// definition when it defined as `oidc_override`. Optional.
 	DefaultOidcConfig *oidc.OIDCConfig `protobuf:"bytes,10,opt,name=default_oidc_config,json=defaultOidcConfig,proto3" json:"default_oidc_config,omitempty"`
-	// If true will allow the the requests even no filter chain match is found. Default false.
-	// Optional.
+	// If true will allow the the requests even no filter chain match is found.
+	// Default false. Optional.
 	AllowUnmatchedRequests bool `protobuf:"varint,11,opt,name=allow_unmatched_requests,json=allowUnmatchedRequests,proto3" json:"allow_unmatched_requests,omitempty"`
 }
 
@@ -452,9 +454,9 @@ type TriggerRule struct {
 	// Optional.
 	ExcludedPaths []*StringMatch `protobuf:"bytes,1,rep,name=excluded_paths,json=excludedPaths,proto3" json:"excluded_paths,omitempty"`
 	// List of paths that the request must include. If the list is not empty, the
-	// rule is satisfied if request path matches at least one of the path in the list.
-	// If the list is empty, the rule is ignored, in other words the rule is always satisfied.
-	// Optional.
+	// rule is satisfied if request path matches at least one of the path in the
+	// list. If the list is empty, the rule is ignored, in other words the rule is
+	// always satisfied. Optional.
 	IncludedPaths []*StringMatch `protobuf:"bytes,2,rep,name=included_paths,json=includedPaths,proto3" json:"included_paths,omitempty"`
 }
 
@@ -605,8 +607,9 @@ type StringMatch_Suffix struct {
 }
 
 type StringMatch_Regex struct {
-	// ECMAscript style regex-based match as defined by [EDCA-262](http://en.cppreference.com/w/cpp/regex/ecmascript).
-	// Example: "^/pets/(.*?)?"
+	// ECMAscript style regex-based match as defined by
+	// [EDCA-262](http://en.cppreference.com/w/cpp/regex/ecmascript). Example:
+	// "^/pets/(.*?)?"
 	Regex string `protobuf:"bytes,4,opt,name=regex,proto3,oneof"`
 }
 

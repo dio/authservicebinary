@@ -1,3 +1,0 @@
-package authservicebinary
-
-func ListenAndServe() {}
