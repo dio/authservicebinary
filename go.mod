@@ -1,4 +1,4 @@
-module github.com/dio/authservicebinary
+module github.com/dio/runauthservice
 
 go 1.17
 

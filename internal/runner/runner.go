@@ -22,7 +22,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dio/authservicebinary/internal/downloader"
+	"github.com/dio/runauthservice/internal/downloader"
 )
 
 func Run(cmd *exec.Cmd) (int, error) {

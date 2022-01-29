@@ -27,9 +27,9 @@ import (
 	"github.com/tetratelabs/telemetry"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/dio/authservicebinary/generated/config"
-	"github.com/dio/authservicebinary/internal/downloader"
-	"github.com/dio/authservicebinary/internal/runner"
+	"github.com/dio/runauthservice/generated/config"
+	"github.com/dio/runauthservice/internal/downloader"
+	"github.com/dio/runauthservice/internal/runner"
 )
 
 var (

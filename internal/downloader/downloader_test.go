@@ -24,7 +24,7 @@ import (
 	"github.com/bazelbuild/bazelisk/httputil"
 	"github.com/stretchr/testify/require"
 
-	"github.com/dio/authservicebinary/internal/downloader"
+	"github.com/dio/runauthservice/internal/downloader"
 )
 
 var (
