@@ -31,7 +31,7 @@ const (
 	DefaultBinaryName = "auth_server"
 
 	// The auth_server binary is .stripped, hence the suffix.
-	defautArchivedBinaryName = DefaultBinaryName + ".stripped"
+	defaultArchivedBinaryName = DefaultBinaryName + ".stripped"
 	// This is similar to: https://github.com/dio/authservice/releases/download/v0.6.0-rc0/auth_server_0.6.0-rc0_darwin_amd64.tar.gz.
 	archiveURLPattern = "https://github.com/dio/authservice/releases/download/v%s/auth_server_%s_%s_amd64.tar.gz"
 )
@@ -54,7 +54,7 @@ func DownloadVersionedBinary(ctx context.Context, version, destDir, destFile str
 		}
 		buffer := bytes.NewBuffer(data)
 		err = extract.Gz(ctx, buffer, destDir, func(name string) string {
-			if name == defautArchivedBinaryName {
+			if name == defaultArchivedBinaryName {
 				return DefaultBinaryName
 			}
 			return name
