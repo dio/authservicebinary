@@ -44,7 +44,6 @@ export PATH := $(go_tools_dir):$(prepackaged_tools_dir)/bin:$(PATH)
 
 # Pre-packaged targets.
 clang-format := $(prepackaged_tools_dir)/bin/clang-format
-protoc       := $(prepackaged_tools_dir)/bin/protoc
 
 # Go-based tools.
 addlicense          := $(go_tools_dir)/addlicense
