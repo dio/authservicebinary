@@ -47,7 +47,7 @@ func Run(cmd *exec.Cmd) (int, error) {
 			waitStatus, _ := exitError.Sys().(syscall.WaitStatus)
 			return waitStatus.ExitStatus(), nil
 		}
-		return 1, fmt.Errorf("failed to launch %s: %v", downloader.DefautArchivedBinaryName, err)
+		return 1, fmt.Errorf("failed to launch %s: %v", downloader.DefautBinaryName, err)
 	}
 	return 0, nil
 }
