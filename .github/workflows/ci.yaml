@@ -68,7 +68,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ./.cache/buf
-          key: ${{ runner.os }}-buf-${{ hashFiles('api/buf.lock') }}
+          key: ${{ runner.os }}-buf-${{ hashFiles('authservice/buf.lock') }}
           restore-keys: ${{ runner.os }}-buf-
       - name: "Generate cache key for Linter"
         run: |
