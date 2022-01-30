@@ -16,7 +16,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/dio/authservicebinary/generated
+    default: github.com/dio/runauthservice/generated
     except:
       - buf.build/envoyproxy/protoc-gen-validate
 

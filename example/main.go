@@ -22,7 +22,7 @@ import (
 	runsignal "github.com/tetratelabs/run/pkg/signal"
 	"github.com/tetratelabs/telemetry"
 
-	"github.com/dio/authservicebinary/api"
+	"github.com/dio/runauthservice/api"
 )
 
 func main() {

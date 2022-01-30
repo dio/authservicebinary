@@ -27,8 +27,11 @@ import (
 )
 
 const (
-	DefautArchivedBinaryName = "auth_server.stripped"
-	DefautBinaryName         = "auth_server"
+	// Default binary name to execute.
+	DefaultBinaryName = "auth_server"
+
+	// The auth_server binary is .stripped, hence the suffix.
+	defaultArchivedBinaryName = DefaultBinaryName + ".stripped"
 	// This is similar to: https://github.com/dio/authservice/releases/download/v0.6.0-rc0/auth_server_0.6.0-rc0_darwin_amd64.tar.gz.
 	archiveURLPattern = "https://github.com/dio/authservice/releases/download/v%s/auth_server_%s_%s_amd64.tar.gz"
 )
@@ -40,8 +43,8 @@ func DownloadVersionedBinary(ctx context.Context, version, destDir, destFile str
 		return "", fmt.Errorf("could not create directory %s: %v", destDir, err)
 	}
 
-	downloadedBinaryPath := filepath.Join(destDir, DefautArchivedBinaryName)
-	if _, err := os.Stat(downloadedBinaryPath); err != nil {
+	destinationPath := filepath.Join(destDir, DefaultBinaryName)
+	if _, err := os.Stat(destinationPath); err != nil {
 		downloadURL := GetArchiveURL(version)
 		// TODO(dio): Streaming the bytes from remote file. We decided to use this for skipping copying
 		// the retry logic that has already implemented in github.com/bazelbuild/bazelisk/httputil.
@@ -50,22 +53,20 @@ func DownloadVersionedBinary(ctx context.Context, version, destDir, destFile str
 			return "", fmt.Errorf("failed to read remote file: %s: %w", downloadURL, err)
 		}
 		buffer := bytes.NewBuffer(data)
-		err = extract.Gz(ctx, buffer, destDir, nil)
+		err = extract.Gz(ctx, buffer, destDir, func(name string) string {
+			if name == defaultArchivedBinaryName {
+				return DefaultBinaryName
+			}
+			return name
+		})
 		if err != nil {
 			return "", err
 		}
-		if _, err = os.Stat(downloadedBinaryPath); err != nil {
+		if _, err = os.Stat(destinationPath); err != nil {
 			return "", fmt.Errorf("failed to extract the remote file from: %s: %w", downloadURL, err)
 		}
-		if err = os.Chmod(downloadedBinaryPath, 0o755); err != nil { //nolint:gosec
-			return "", fmt.Errorf("could not chmod file %s: %v", downloadedBinaryPath, err)
-		}
-	}
-
-	destinationPath := filepath.Join(destDir, destFile)
-	if _, err := os.Stat(destinationPath); err != nil {
-		if err = os.Rename(downloadedBinaryPath, destinationPath); err != nil {
-			return "", fmt.Errorf("failed to rename to: %s: %w", destinationPath, err)
+		if err = os.Chmod(destinationPath, 0o755); err != nil { //nolint:gosec
+			return "", fmt.Errorf("could not chmod file %s: %v", destinationPath, err)
 		}
 	}
 	return destinationPath, nil

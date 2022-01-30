@@ -1,6 +1,6 @@
 # Example
 
-This is an example of using the github.com/dio/authservicebinary/api package.
+This is an example of using the github.com/dio/runauthservice/api package.
 
 ```console
 go run main.go --external-auth-service-config path/to/config.json

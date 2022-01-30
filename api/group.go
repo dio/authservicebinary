@@ -27,9 +27,9 @@ import (
 	"github.com/tetratelabs/telemetry"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	"github.com/dio/authservicebinary/generated/config"
-	"github.com/dio/authservicebinary/internal/downloader"
-	"github.com/dio/authservicebinary/internal/runner"
+	"github.com/dio/runauthservice/generated/config"
+	"github.com/dio/runauthservice/internal/downloader"
+	"github.com/dio/runauthservice/internal/runner"
 )
 
 var (
@@ -65,11 +65,11 @@ func New(cfg *Config) *Service {
 
 // Service is a run.Service implementation that runs auth_server.
 type Service struct {
-	cfg           *Config
-	cmd           *exec.Cmd
-	binaryPath    string
-	configPath    string
-	filterCfgFile string
+	cfg              *Config
+	cmd              *exec.Cmd
+	binaryPath       string
+	configPath       string
+	filterConfigFile string
 }
 
 var _ run.Config = (*Service)(nil)
@@ -83,9 +83,9 @@ func (s *Service) Name() string {
 func (s *Service) FlagSet() *run.FlagSet {
 	flags := run.NewFlagSet("External AuthN/AuthZ Service options")
 	flags.StringVar(
-		&s.filterCfgFile,
+		&s.filterConfigFile,
 		s.flagName("config"),
-		s.filterCfgFile,
+		s.filterConfigFile,
 		"Path to the filter config file")
 
 	flags.StringVar(
@@ -109,8 +109,8 @@ func (s *Service) flagName(name string) string {
 
 // Validate validates the given configuration.
 func (s *Service) Validate() error {
-	if s.filterCfgFile != "" {
-		b, err := os.ReadFile(s.filterCfgFile)
+	if s.filterConfigFile != "" {
+		b, err := os.ReadFile(s.filterConfigFile)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (s *Service) Validate() error {
 func (s *Service) PreRun() (err error) {
 	if s.cfg.Dir == "" {
 		// To make sure we have a work directory.
-		dir, err := ioutil.TempDir("", downloader.DefautBinaryName)
+		dir, err := ioutil.TempDir("", downloader.DefaultBinaryName)
 		if err != nil {
 			return nil
 		}
@@ -142,7 +142,7 @@ func (s *Service) PreRun() (err error) {
 	defer cancel()
 
 	// Check and download the versioned binary.
-	s.binaryPath, err = downloader.DownloadVersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, downloader.DefautBinaryName)
+	s.binaryPath, err = downloader.DownloadVersionedBinary(ctx, s.cfg.Version, s.cfg.Dir, downloader.DefaultBinaryName)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,10 @@ func (s *Service) PreRun() (err error) {
 		return err
 	}
 
-	tmp, err := ioutil.TempFile(s.cfg.Dir, downloader.DefautBinaryName)
+	tmp, err := os.CreateTemp(s.cfg.Dir, "*.json")
+	if err != nil {
+		return err
+	}
 	if err != nil {
 		return err
 	}
@@ -171,7 +174,7 @@ func (s *Service) PreRun() (err error) {
 func (s *Service) Serve() error {
 	// Run the downloaded auth_server with the generated config in s.configPath.
 	if exitCode, err := runner.Run(s.cmd); err != nil {
-		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", downloader.DefautBinaryName, exitCode), err)
+		s.cfg.Logger.Error(fmt.Sprintf("%s exit with %d", downloader.DefaultBinaryName, exitCode), err)
 		return err
 	}
 	return nil
